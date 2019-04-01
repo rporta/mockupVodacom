@@ -95,11 +95,13 @@ var resolverParam = (status) => {
 		valresultDescription = 'An error has occurred';
 		break;
 		case 4:
+		case 'Content Block flag':
 		valstatusCode = 4;
 		valresult = 'BLOCKED'
 		valresultDescription = 'Content block flag set';
 		break;
 		case 5:
+		case 'Insufficient Funds':
 		valstatusCode = 5;
 		valresult = 'ERROR'
 		valresultDescription = 'Insufficient funds';
@@ -111,16 +113,19 @@ var resolverParam = (status) => {
 		valresultDescription = 'Timeout waiting for response';
 		break;
 		case 7:
+		case 'Already Subscribed':
 		valstatusCode = 7;
 		valresult = 'ERROR'
 		valresultDescription = 'Already subscribed to service';
 		break;
 		case 8:
+		case 'Invalid Request':
 		valstatusCode = 8;
 		valresult = 'ERROR'
 		valresultDescription = 'Invalid request';
 		break;
 		case 9:
+		case 'Admin lock flag':
 		valstatusCode = 9;
 		valresult = 'BLOCKED'
 		valresultDescription = 'Admin lock flag set';
