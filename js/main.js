@@ -71,21 +71,25 @@ app.create(modal);
 var resolverParam = (status) => {
 	switch (status){
 		case 0:
+		case 'Successful Purchase':
 		valstatusCode = 0;
 		valresult = 'ACCEPTED';
 		valresultDescription = 'Successfully subscribed';
 		break;
 		case 1:
+		case 'Declined Purchase':
 		valstatusCode = 1;
 		valresult = 'DECLINED';
 		valresultDescription = 'Customer declined';
 		break;
 		case 2:
+		case 'Fraudulent Activity Detected':
 		valstatusCode = 2;
 		valresult = 'FRAUD';
 		valresultDescription = 'Fraud detected';
 		break;
 		case 3:
+		case 'System Error':
 		valstatusCode = 3;
 		valresult = 'ERROR';
 		valresultDescription = 'An error has occurred';
@@ -101,6 +105,7 @@ var resolverParam = (status) => {
 		valresultDescription = 'Insufficient funds';
 		break;
 		case 6:
+		case 'Timeout':
 		valstatusCode = 6;
 		valresult = 'ERROR'
 		valresultDescription = 'Timeout waiting for response';
