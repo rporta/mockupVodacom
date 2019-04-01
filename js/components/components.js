@@ -32,7 +32,6 @@ let configComponent = class {
 		//set data 
 		this.data = typeof obj.data  ==  "function" ? obj.data : null;
 
-
 		//create methods in data
 		typeof this.data   ==  "function"
 		? (()=>{
@@ -46,8 +45,20 @@ let configComponent = class {
 		})()
 		: null;
 
-
 		//create default methods
+		setMethods.getVue = function(uid = 0){
+			var uids = {};
+			for(let i in document.all){
+				var current = document.all[i];
+				if(current.__vue__){
+					uids[current.__vue__._uid] = current.__vue__;
+					if(current.__vue__._uid === uid){
+						return current.__vue__;
+					}
+				}
+			}
+			return uids;
+		}
 		setMethods.newComponent = function(component){
 			return new this.$options.components[component]();
 		}
@@ -55,29 +66,71 @@ let configComponent = class {
 			return app ? this.$options.name + app.generateId(arg) : this.$options.name + this.$root.generateId(arg);		
 		}
 		setMethods.create = function(element){
-			this.$el.append(element.$mount().$el);
+			this.$el
+			? (() => {
+				this.$el.append(element.$mount().$el);
+			})()
+			: (() => {
+				this.$mount().$el.append(element.$mount().$el);
+			})()
 			return this;
 		}
+		setMethods.setVue = function (add = "string", b = this){
+			if(!b.$el){
+				b.$mount();
+			}
+			$(b).empty();
+			if(typeof add == 'string'){
+				$(b.$el).text(add);
+			}else{
+				$(b.$el).append(add.$mount().$el);
+			}
+			return this;
+		}
+		setMethods.addVue = function (add = "string", b = this){
+			if(!b.$el){
+				b.$mount();
+			}
+			if(typeof add == 'string'){
+				$(b.$el).append((document.createTextNode(add)));
+			}else{
+				if(!add.$el){
+					add.$mount();	
+				}
+				var x = $(add.$el)
+				console.log($(add.$el));
+				$(b.$el).append(x);
+			}
+			return this;
+		}
+		setMethods.clearVue = function(b = this){
+			if(!b.$el){
+				b.$mount();
+			}
+			$(b).empty();
+		}
+		setMethods.binaryCompare = function(a, b){
+			return a.localeCompare(b, 'es', { sensitivity: 'base' }) === 0 ? true : false;
+		}
 		setMethods.setClass = function(arg){
-			let setClass = new Array;
+			let setClass = new Array();
 			//default class
-			for(let i in this.$options.data()){
-
-				i == 'truncate' && this.$options.data()[i] ? setClass.push(i) : null;
-				i == 'cardpanel' && this.$options.data()[i] ? setClass.push('card-panel') : null;
-				i == 'hoverable' && this.$options.data()[i] ? setClass.push(i) : null;
-				i == 'container'  && this.$options.data()[i] ? setClass.push(i) : null;
-				i == 'valign' && this.$options.data()[i] ? setClass.push('valign-wrapper') : null;
-				i == 'flowText' && this.$options.data()[i] ? setClass.push('flow-text') : null;
-				i == 'striped' && this.$options.data()[i] ? setClass.push(i) : null;
-				i == 'highlight' && this.$options.data()[i] ? setClass.push(i) : null;
-				i == 'centered' && this.$options.data()[i] ? setClass.push(i) : null;
-				i == 'responsive' && this.$options.data()[i] ? setClass.push('responsive-table') : null;
-				i == 'filledIn' && this.$options.data()[i] ? setClass.push('filled-in') : null;
-				i == 'disable' && this.$options.data()[i] ? setClass.push(i) : null;
-				i == 'flat' && this.$options.data()[i] ? setClass.push('btn-flat') : null;
-				i == 'floating' && this.$options.data()[i] ? setClass.push(i) : null;
-				i == 'withGap' && this.$options.data()[i] ? setClass.push('with-gap') : null;
+			for(let i in this.$data){
+				i == 'truncate' && this.$data[i] ? setClass.push(i) : null;
+				i == 'cardpanel' && this.$data[i] ? setClass.push('card-panel') : null;
+				i == 'hoverable' && this.$data[i] ? setClass.push(i) : null;
+				i == 'container'  && this.$data[i] ? setClass.push(i) : null;
+				i == 'valign' && this.$data[i] ? setClass.push('valign-wrapper') : null;
+				i == 'flowText' && this.$data[i] ? setClass.push('flow-text') : null;
+				i == 'striped' && this.$data[i] ? setClass.push(i) : null;
+				i == 'highlight' && this.$data[i] ? setClass.push(i) : null;
+				i == 'centered' && this.$data[i] ? setClass.push(i) : null;
+				i == 'responsive' && this.$data[i] ? setClass.push('responsive-table') : null;
+				i == 'filledIn' && this.$data[i] ? setClass.push('filled-in') : null;
+				i == 'disable' && this.$data[i] ? setClass.push(i) : null;
+				i == 'flat' && this.$data[i] ? setClass.push(i) : null;
+				i == 'floating' && this.$data[i] ? setClass.push(i) : null;
+				i == 'withGap' && this.$data[i] ? setClass.push('with-gap') : null;
 
 				i == 'color' ||
 				i == 'colorText' ||
@@ -85,7 +138,7 @@ let configComponent = class {
 				i == 'textAling' ||
 				i == 'float' ||
 				i == 'shadow' 
-				? setClass.push(this.$options.data()[i])
+				? setClass.push(this.$data[i])
 				: null;
 			}
 
@@ -1950,15 +2003,118 @@ var ol = new configComponent({
 			var tagName = "ol";
 			return tagName;	
 		},		
-		setClass : function(){
-			var truncate = "truncate";
-			var cardpanel = "card-panel";
-			var hoverable = "hoverable";
-			var valign = "valign-wrapper";
-			var container = "container";
-			var flowText = "flow-text";				
-			return new Array(this.color, this.colorText, this.textAling, this.float, this.shadow, this.truncate ? truncate : "", this.cardpanel ? cardpanel : "", this.hoverable ? hoverable : "", this.valign ? valign : "", this.container ? container : "", this.flowText ? flowText : "").join(" ");
-		},
+	}		
+});
+var ul = new configComponent({
+	name : "c-ul",
+	data : function(){
+		return{			
+			text : this.ptext,
+			color : this.pcolor,
+			colorText : this.pcolorText,
+			textAling : this.ptextAling,
+			float : this.pfloat,
+			shadow : this.pshadow,
+			truncate : this.ptruncate,
+			cardpanel : this.pcardpanel,
+			hoverable : this.phoverable,
+			container : this.pcontainer,
+			valign : this.pvalign,
+			show : this.pshow,
+			flowText : this.pflowText,
+			padingl : this.pppadingl,
+		}
+	},
+	props : {
+		ptext  : {
+			type : String,
+			required : false, 
+			default : null,
+		}, 
+		pcolor  : {
+			type : String,
+			required : false, 
+			default : null,
+		}, 
+		pcolorText  : {
+			type : String,
+			required : false, 
+			default : null,
+		}, 
+		ptextAling  : {
+			type : String,
+			required : false, 
+			default : null,
+		}, 
+		pfloat  : {
+			type : String,
+			required : false, 
+			default : null,
+		}, 
+		pshadow  : {
+			type : String,
+			required : false, 
+			default : null,
+		}, 
+		ptruncate  : {
+			type : Boolean,
+			required : false, 
+			default : false,
+		}, 
+		pcardpanel  : {
+			type : Boolean,
+			required : false, 
+			default : false,
+		}, 
+		phoverable  : {
+			type : Boolean,
+			required : false, 
+			default : false,
+		}, 
+		pcontainer  : {
+			type : Boolean,
+			required : false, 
+			default : false,
+		}, 
+		pvalign  : {
+			type : Boolean,
+			required : false, 
+			default : false,
+		}, 
+		pshow  : {
+			type : Boolean,
+			required : false, 
+			default : true,
+		}, 
+		pflowText  : {
+			type : Boolean,
+			required : false, 
+			default : false,
+		}, 		
+		ppadingl  : {
+			type : String,
+			required : false, 
+			default : null,
+		}, 		
+	},
+	template : 
+	'<transition name="fade">\
+	<div v-bind:is="this.generateTag()" key="this.generateId(5)" v-show="this.show" v-bind:style="this.generateStyle()" v-bind:id="this.generateId(5)" v-bind:class="this.setClass()">{{this.text}}</div>\
+	</transition>',
+	methods : {
+		generateTag : function(){
+			var tagName = "ul";
+			return tagName;	
+		},	
+		generateStyle : function(){
+			var setStyle = {};
+			this.padingl !== null 
+			? (() => {
+				setStyle.paddingLeft = this.padingl;
+			})()
+			: null; 
+			return setStyle;	
+		},	
 	}		
 });
 var li = new configComponent({
@@ -1979,6 +2135,7 @@ var li = new configComponent({
 			show : this.pshow,
 			flowText : this.pflowText,
 			value : this.pvalue,
+			listStyle : this.plistStyle,
 		}
 	},
 	props : {
@@ -2052,24 +2209,29 @@ var li = new configComponent({
 			required : false, 
 			default : null,
 		}, 		
+		plistStyle  : {
+			type : String,
+			required : false, 
+			default : null,
+		}, 		
 	},
 	template : 
 	'<transition name="fade">\
-	<div v-bind:is="this.generateTag()" key="this.generateId(5)" v-show="this.show" v-bind:id="this.generateId(5)" v-bind:class="this.setClass()" v-bind:value="this.value">{{this.text}}</div>\
+	<div v-bind:is="this.generateTag()" key="this.generateId(5)" v-show="this.show" v-bind:style="this.generateStyle()" v-bind:id="this.generateId(5)" v-bind:class="this.setClass()" v-bind:value="this.value">{{this.text}}</div>\
 	</transition>',
 	methods : {
 		generateTag : function(){
 			var tagName = "li";
 			return tagName;	
-		},		
-		setClass : function(){
-			var truncate = "truncate";
-			var cardpanel = "card-panel";
-			var hoverable = "hoverable";
-			var valign = "valign-wrapper";
-			var container = "container";
-			var flowText = "flow-text";				
-			return new Array(this.color, this.colorText, this.textAling, this.float, this.shadow, this.truncate ? truncate : "", this.cardpanel ? cardpanel : "", this.hoverable ? hoverable : "", this.valign ? valign : "", this.container ? container : "", this.flowText ? flowText : "").join(" ");
+		},
+		generateStyle : function(){
+			var setStyle = {}
+			this.listStyle !== null 
+			? (() => {
+				setStyle.listStyleType = this.listStyle;
+			})()
+			: null;
+			return setStyle;	
 		},
 	}		
 });

@@ -33,6 +33,7 @@ var app = new Vue({
 		[footer.name] : footer,
 		[form.name] : form,
 		/*components-text*/
+		[ul.name] : ul,
 		[ol.name] : ol,
 		[li.name] : li,
 		[h.name] : h,
